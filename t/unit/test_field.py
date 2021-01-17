@@ -1,6 +1,7 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, fields, field
 import pytest
 from typing import Optional, cast
+from inspect import signature
 from dcv.fields import Field
 
 class MyField(Field):
@@ -37,9 +38,9 @@ def test_field_optional_with_default():
     """
     @dataclass
     class T:
-        name: Optional[str] = cast(str, MyField(optional=True, default="x"))
+        name: Optional[str] = field(default=MyField(optional=True, default="x"))
 
-    t = T(name=None)
+    t = T()
     assert t.name == "x"
 
 def test_field_optional_no_default():
@@ -51,10 +52,10 @@ def test_field_optional_no_default():
     """
     @dataclass
     class T:
-        name: Optional[str] = cast(str, MyField(optional=True))
+        name: Optional[str] = field(default=MyField(optional=True))
 
-    t = T(name=None)
-    t.name is None
+    with pytest.raises(AssertionError):
+        t = T()
 
 def test_field_default_and_optional_False():
     """Base field.
@@ -65,7 +66,7 @@ def test_field_default_and_optional_False():
     """
     @dataclass
     class T:
-        name: Optional[str] = cast(str, MyField(default="x"))
+        name: Optional[str] = field(default=MyField(default="x"))
 
-    t = T(name=None)
+    t = T()
     assert t.name == "x"

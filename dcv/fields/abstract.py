@@ -16,7 +16,7 @@ class Field(ABC):
     """
 
     # Type to verify value set.
-    TYPE = None
+    TYPE: Any = None
 
     def __init__(self, default: Any=MISSING, optional: bool=False) -> None:
         """Init base field.
@@ -71,7 +71,7 @@ class Field(ABC):
 
         If a field is marked as optional and it has a value of None, no validation is run.
         """
-        if self.default is not MISSING and value is None:
+        if self.default is not MISSING and (value is None or isinstance(value, Field)):
             value = self.default
 
         if not self._check_value_is_optional(value):
@@ -99,7 +99,7 @@ class Field(ABC):
         """Implement if you want to transform value after validation."""
         return value
 
-    def _validate_optional(self, value:Any) -> bool:
+    def _validate_optional(self, value:Any) -> None:
         if not self.optional and value is None:
             raise AttributeError(f"{self.public_attr_name} cannot be 'None'.")
 
