@@ -1,3 +1,3 @@
-from dcv.fields.abstract import Field
+from dcv.fields.abstract import Field, MISSING
 
-__all__ = ["Field"]
+__all__ = ["Field", "MISSING"]

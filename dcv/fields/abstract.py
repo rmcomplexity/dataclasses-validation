@@ -74,6 +74,9 @@ class Field(ABC):
         if self.default is not MISSING and (value is None or isinstance(value, Field)):
             value = self.default
 
+        if self.optional and self.default is MISSING:
+            value = None
+
         if not self._check_value_is_optional(value):
             self.validate(value)
         try:

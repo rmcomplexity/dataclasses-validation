@@ -8,7 +8,7 @@ class MyField(Field):
     """Custom field."""
 
     def validate(self, value):
-        assert value == "x"
+        assert value == "x" or value is None
 
 
 def test_field():
@@ -20,7 +20,7 @@ def test_field():
     """
     @dataclass
     class T:
-        name: str = cast(str, MyField())
+        name: str = field(default=MyField())
 
     t = T(name="x")
     assert t.name == "x", "Custom field does not accept a valid string."
@@ -54,8 +54,8 @@ def test_field_optional_no_default():
     class T:
         name: Optional[str] = field(default=MyField(optional=True))
 
-    with pytest.raises(AssertionError):
-        t = T()
+    t = T()
+    assert t.name is None
 
 def test_field_default_and_optional_False():
     """Base field.

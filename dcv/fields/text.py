@@ -1,5 +1,5 @@
-from dcv.fields import Field
-from typing import Optional
+from dcv.fields import Field, MISSING
+from typing import Optional, cast
 import re
 
 class TextField(Field):
@@ -15,7 +15,7 @@ class TextField(Field):
 
     def __init__(
         self,
-        default: Optional[str]=None,
+        default: Optional[str] = cast(str, MISSING),
         max_length: Optional[int]=None,
         min_length: Optional[int]=None, *,
         optional: bool=False,
@@ -47,6 +47,12 @@ class TextField(Field):
 
         if self.regex is not None:
             self._validate_regex(value)
+
+    def transform(self, value: str) -> str:
+        if self.trim is not None:
+            return value.strip(self.trim)
+
+        return value
 
     def _validate_max_length(self, value: str, max_length: int) -> None:
         if len(value) > max_length:
