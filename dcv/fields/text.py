@@ -26,7 +26,6 @@ class TextField(Field):
         super().__init__(default, optional)
         self.max_length = max_length
         self.min_length = min_length
-        self.optional = optional
         self.blank = blank
         self.trim = trim
         self.regex = None
@@ -59,11 +58,11 @@ class TextField(Field):
             )
 
     def _validate_min_length(self, value: str, min_length: int) -> None:
-        if len(value) > min_length:
+        if len(value) < min_length:
             raise AttributeError(
                 self.ERROR_MSGS["min_length"].format(
                     attr_name=self.public_attr_name,
-                    length=self.max_length
+                    length=self.min_length
                 )
             )
     def _validate_blank(self, value: str) -> None:
