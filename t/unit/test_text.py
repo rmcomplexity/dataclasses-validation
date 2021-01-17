@@ -16,5 +16,5 @@ def test_str():
     t = T(name="valid string")
     assert t.name == "valid string", "Validation does not accept a valid string."
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(TypeError):
         t = T(name=123)

@@ -11,6 +11,7 @@ class TextField(Field):
         "blank": "{attr_name} cannot be blank.",
         "regex": "{attr_name} does not match regex: {regex} .",
     }
+    TYPE = str
 
     def __init__(
         self,
@@ -35,6 +36,8 @@ class TextField(Field):
     def validate(self, value: str) -> None:
         self._validate_optional(value)
 
+        self._check_type(value)
+
         self._validate_blank(value)
 
         if self.max_length is not None:
@@ -50,7 +53,7 @@ class TextField(Field):
         if len(value) > max_length:
             raise AttributeError(
                 self.ERROR_MSGS["max_length"].format(
-                    attr_name=self.private_attr_name,
+                    attr_name=self.public_attr_name,
                     length=self.max_length
                 )
             )
@@ -59,19 +62,19 @@ class TextField(Field):
         if len(value) > min_length:
             raise AttributeError(
                 self.ERROR_MSGS["min_length"].format(
-                    attr_name=self.private_attr_name,
+                    attr_name=self.public_attr_name,
                     length=self.max_length
                 )
             )
     def _validate_blank(self, value: str) -> None:
         if not self.blank and not len(value):
-            raise AttributeError(self.ERROR_MSGS["blank"].format(attr_name=self.private_attr_name))
+            raise AttributeError(self.ERROR_MSGS["blank"].format(attr_name=self.public_attr_name))
 
     def _validate_regex(self, value: str) -> None:
         if self.regex and not self.compiled.match(value):
             raise AttributeError(
                 self.ERROR_MSGS["regex"].format(
-                    attr_name=self.private_attr_name,
+                    attr_name=self.public_attr_name,
                     regex=self.regex
                )
             )
