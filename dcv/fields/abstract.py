@@ -6,6 +6,10 @@ class Field(ABC):
 
     Every field should inherit this class, even user defined fields.
     """
+    def __init__(self, default: Any=None, optional: bool=False) -> None:
+        self.default = default
+        self.optional = optional
+
     def __set_name__(self, owner: Any, name: str) -> None:
         self.private_attr_name = f"_{name}"
 
@@ -21,7 +25,7 @@ class Field(ABC):
 
         Custom fields MUST implement `validate` but `transform` is optional.
         """
-        self._validate(value)
+        self.validate(value)
         try:
             transform_fn = self.transform
         except AttributeError:
@@ -33,3 +37,11 @@ class Field(ABC):
     def validate(self, value: Any) -> None:
         """Every field should implement this method."""
         raise NotImplemented
+
+    def transform(self, value: Any) -> Any:
+        """Implement if you want to transform value after validation."""
+        return value
+
+    def _validate_optional(self, value:Any) -> None:
+        if not self.optional and value is None:
+            raise AttributeError(f"{self.private_attr_name} cannot be 'None'.")

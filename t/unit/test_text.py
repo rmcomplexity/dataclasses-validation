@@ -11,7 +11,7 @@ def test_str():
     """
     @dataclass
     class T:
-        name: str = text()
+        name: str = TextField()
 
     t = T(name="valid string")
     assert t.name == "valid string", "Validation does not accept a valid string."
