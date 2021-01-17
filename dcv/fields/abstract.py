@@ -6,7 +6,6 @@ class Field(ABC):
 
     Every field should inherit this class, even user defined fields.
     """
-
     def __set_name__(self, owner: Any, name: str) -> None:
         self.private_attr_name = f"_{name}"
 
