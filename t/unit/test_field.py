@@ -95,3 +95,29 @@ def test_field_default_and_optional_False():
 
     ot = OT()
     assert ot.name == "x"
+
+
+def test_field_use_private_attr():
+    """Base field.
+
+    GIVEN a custom field with a `default` value and `optional` set to False.
+    WHEN a dataclass uses it
+    THEN it should correctly initialize class.
+    """
+    @dataclass
+    class T:
+        name: str = MyField(use_private_attr=True)
+
+    @dataclass
+    class OT:
+        name: str = MyField(use_private_attr=True)
+
+    t = T(name="x")
+    assert t.name == "x"
+    assert t.__dict__["_name"] == "x"
+    assert ("name" in t.__dict__) == False
+
+    ot = OT(name="x")
+    assert ot.name == "x"
+    assert ot.__dict__["_name"] == "x"
+    assert ("name" in ot.__dict__) == False

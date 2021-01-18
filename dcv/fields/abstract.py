@@ -18,7 +18,12 @@ class Field(ABC):
     # Type to verify value set.
     TYPE: Any = None
 
-    def __init__(self, default: Any=MISSING, optional: bool=False) -> None:
+    def __init__(
+        self,
+        default: Any=MISSING,
+        optional: bool=False,
+        use_private_attr: bool=False
+    ) -> None:
         """Init base field.
 
         By default every field can have a default and an optional flag.
@@ -29,8 +34,9 @@ class Field(ABC):
         If `default` is set but `optional` is automatically set to `True`.
         """
         self.optional = optional
+        self.use_private_attr = use_private_attr
         if optional and default is MISSING:
-            self.default = None
+           default = None
 
         if not optional and default is not MISSING:
             self.optional = True
@@ -46,7 +52,7 @@ class Field(ABC):
 
         `MISSING` is used as a sentinel to identify when a value has not been set.
         """
-        value: Any = getattr(obj, self.private_attr_name, MISSING)
+        value: Any = self._get_value(obj)
 
         self._check_value_has_been_set_or_optional(value)
 
@@ -72,14 +78,7 @@ class Field(ABC):
 
         value = self.transform(value)
 
-        setattr(obj, self.private_attr_name, value)
-
-    def _check_type(self, value: Any) -> None:
-        if not isinstance(value, self.TYPE):
-            raise TypeError(
-                f"Value ({value}) set to field {self.public_attr_name} "
-                f"must be of type {self.TYPE} and not {type(value)}"
-            )
+        self._set_value(obj, value)
 
     @abstractmethod
     def validate(self, value: Any) -> None:
@@ -89,6 +88,38 @@ class Field(ABC):
     def transform(self, value: Any) -> Any:
         """Implement if you want to transform value after validation."""
         return value
+
+    def _get_value(self, obj: Any) -> Any:
+        """Retrieve value from object.
+
+        If `use_private_attr` the value will be read from `_{public_attr_name}`.
+        Else the value will be read from `{public_attr_name}`.
+        """
+        if self.use_private_attr:
+            return getattr(obj, self.private_attr_name, MISSING)
+
+        if hasattr(obj, "__dict__"):
+            return obj.__dict__.get(self.public_attr_name, MISSING)
+
+        return MISSING
+
+    def _set_value(self, obj: Any, value: Any) -> Any:
+        """Set value to attribute in object.
+
+        If `use_private_attr` the value will be set to `_{public_attr_name}`.
+        Else the value will be set to `{public_attr_name}`.
+        """
+        if self.use_private_attr:
+            setattr(obj, self.private_attr_name, value)
+        else:
+            obj.__dict__[self.public_attr_name] = value
+
+    def _check_type(self, value: Any) -> None:
+        if not isinstance(value, self.TYPE):
+            raise TypeError(
+                f"Value ({value}) set to field {self.public_attr_name} "
+                f"must be of type {self.TYPE} and not {type(value)}"
+            )
 
     def _validate_optional(self, value:Any) -> None:
         if not self.optional and value is None:
