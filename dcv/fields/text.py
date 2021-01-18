@@ -16,14 +16,19 @@ class TextField(Field):
     def __init__(
         self,
         default: Optional[str] = cast(str, MISSING),
+        optional: bool=False,
+        use_private_attr: bool=False,
         max_length: Optional[int]=None,
         min_length: Optional[int]=None, *,
-        optional: bool=False,
         blank: bool=False,
         regex: str=None,
         trim: str=None
     ):
-        super().__init__(default, optional)
+        super().__init__(
+            default=default,
+            optional=optional,
+            use_private_attr=use_private_attr
+        )
         self.max_length = max_length
         self.min_length = min_length
         self.blank = blank
