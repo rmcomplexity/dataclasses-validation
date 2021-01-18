@@ -106,3 +106,21 @@ def test_str_trim():
 
     t = T(name="    A    ")
     assert t.name == "A"
+
+def test_str_regex():
+    """regex parameter
+
+    GIVEN a dataclass with an `str` field and a text validator with trim
+    WHEN a valid value is given
+    THEN it should transform the value
+    """
+    @dataclass
+    class T:
+        name: str = TextField(regex="^[aA]")
+
+    t = T(name="arturo")
+    assert t.name == "arturo"
+    t1 = T(name="Arturo")
+    assert t1.name == "Arturo"
+    with pytest.raises(AttributeError):
+        t2 = T(name="Pedro")

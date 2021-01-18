@@ -30,6 +30,7 @@ class TextField(Field):
         self.trim = trim
         self.regex = None
         if regex:
+            self.regex = regex
             self.compiled: re.Pattern = re.compile(regex)
 
     def validate(self, value: str) -> None:
