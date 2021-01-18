@@ -3,6 +3,7 @@ import pytest
 from typing import Optional, cast
 from inspect import signature
 from dcv.fields import Field
+import types
 
 class MyField(Field):
     """Custom field."""
@@ -20,13 +21,23 @@ def test_field():
     """
     @dataclass
     class T:
+        name: str = MyField()
+
+    @dataclass
+    class OT:
         name: str = field(default=MyField())
 
     t = T(name="x")
     assert t.name == "x", "Custom field does not accept a valid string."
 
+    ot = OT(name="x")
+    assert ot.name == "x", "Custom field does not accept a valid string."
+
     with pytest.raises(AssertionError):
         t = T(name="invalid string")
+
+    with pytest.raises(AssertionError):
+        ot = T(name="invalid string")
 
 
 def test_field_optional_with_default():
@@ -38,7 +49,7 @@ def test_field_optional_with_default():
     """
     @dataclass
     class T:
-        name: Optional[str] = field(default=MyField(optional=True, default="x"))
+        name: Optional[str] = MyField(optional=True, default="x")
 
     t = T()
     assert t.name == "x"
@@ -52,10 +63,17 @@ def test_field_optional_no_default():
     """
     @dataclass
     class T:
-        name: Optional[str] = field(default=MyField(optional=True))
+        name: Optional[str] = MyField(optional=True)
+
+    @dataclass
+    class OT:
+        name: Optional[str] = MyField(optional=True)
 
     t = T()
     assert t.name is None
+
+    ot = OT()
+    assert ot.name is None
 
 def test_field_default_and_optional_False():
     """Base field.
@@ -66,7 +84,14 @@ def test_field_default_and_optional_False():
     """
     @dataclass
     class T:
-        name: Optional[str] = field(default=MyField(default="x"))
+        name: Optional[str] = MyField(default="x")
+
+    @dataclass
+    class OT:
+        name: Optional[str] = MyField(default="x")
 
     t = T()
     assert t.name == "x"
+
+    ot = OT()
+    assert ot.name == "x"

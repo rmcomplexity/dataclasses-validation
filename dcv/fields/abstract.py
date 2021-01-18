@@ -44,23 +44,17 @@ class Field(ABC):
     def __get__(self, obj: Any, objtype: Any=None) -> Any:
         """Get value.
 
-        `MISSING` is used as a sentinel to identify when no `default` value has been set.
+        `MISSING` is used as a sentinel to identify when a value has not been set.
         """
-        val: Any = getattr(obj, self.private_attr_name, MISSING)
+        value: Any = getattr(obj, self.private_attr_name, MISSING)
 
-        if val is MISSING and self.default is MISSING:
-            raise AttributeError(
-                f"Attribute f{self.public_attr_name} on object f{type(self).__name__} "
-                "has not been set."
-            )
+        self._check_value_has_been_set_or_optional(value)
 
-        if val is MISSING and self.default is not MISSING:
-            setattr(obj, self.private_attr_name, self.default)
-            val = getattr(obj, self.private_attr_name)
+        value = self._compute_default_value(value)
 
-        return val
+        return value
 
-    def __set__(self, obj: Any, value: Any) -> Any:
+    def __set__(self, obj: Any, value: Any) -> None:
         """Set value to private attribute.
 
         Validation and transformation happen here.
@@ -71,20 +65,14 @@ class Field(ABC):
 
         If a field is marked as optional and it has a value of None, no validation is run.
         """
-        if self.default is not MISSING and (value is None or isinstance(value, Field)):
-            value = self.default
+        value = self._compute_default_value(value)
 
-        if self.optional and self.default is MISSING:
-            value = None
-
-        if not self._check_value_is_optional(value):
+        if not self._check_value_is_optional_none(value):
             self.validate(value)
-        try:
-            transform_fn = self.transform
-        except AttributeError:
-            transform_fn = lambda x: x
 
-        setattr(obj, self.private_attr_name, transform_fn(value))
+        value = self.transform(value)
+
+        setattr(obj, self.private_attr_name, value)
 
     def _check_type(self, value: Any) -> None:
         if not isinstance(value, self.TYPE):
@@ -106,9 +94,31 @@ class Field(ABC):
         if not self.optional and value is None:
             raise AttributeError(f"{self.public_attr_name} cannot be 'None'.")
 
-    def _check_value_is_optional(self, value:Any) -> bool:
+    def _check_value_is_optional_none(self, value:Any) -> bool:
         """Check if value of attribute is 'None' and CAN be none."""
         if self.optional and value is None:
             return True
 
         return False
+
+    def _check_value_has_been_set_or_optional(self, value: Any) -> None:
+        """Check if value has been set and there is not a default value we can use.
+
+        An `AttributeError` will be raised if the value has not been set and
+        we cannot use a `default` value.
+        """
+        if not self.optional and value is MISSING and self.default is MISSING:
+            raise AttributeError(
+                f"Attribute f{self.public_attr_name} on object f{type(self).__name__} "
+                "has not been set."
+            )
+
+    def _compute_default_value(self, value: Any) -> Any:
+        """Check if we have to return a default value."""
+        if self.default is not MISSING and (value is MISSING or value is None):
+            value = self.default
+
+        if self.optional and self.default is MISSING:
+            value = None
+
+        return value

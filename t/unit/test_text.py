@@ -11,7 +11,7 @@ def test_str():
     """
     @dataclass
     class T:
-        name: str = field(default=TextField())
+        name: str = TextField()
 
     t = T(name="valid string")
     assert t.name == "valid string", "Validation does not accept a valid string."
@@ -29,7 +29,7 @@ def test_str_max_length():
     """
     @dataclass
     class T:
-        name: str = field(default=TextField(max_length=5))
+        name: str = TextField(max_length=5)
 
     t = T(name="names")
     assert t.name == "names"
@@ -47,7 +47,7 @@ def test_str_min_length():
     """
     @dataclass
     class T:
-        name: str = field(default=TextField(min_length=3))
+        name: str = TextField(min_length=3)
 
     t = T(name="name")
     assert t.name == "name"
@@ -65,7 +65,7 @@ def test_str_max_min_length():
     """
     @dataclass
     class T:
-        name: str = field(default=TextField(min_length=3, max_length=5))
+        name: str = TextField(min_length=3, max_length=5)
 
     t = T(name="names")
     assert t.name == "names"
@@ -85,7 +85,7 @@ def test_str_blank():
     """
     @dataclass
     class T:
-        name: str = field(default=TextField(blank=True))
+        name: str = TextField(blank=True)
 
     t = T(name="")
     assert t.name == ""
@@ -102,7 +102,7 @@ def test_str_trim():
     """
     @dataclass
     class T:
-        name: str = field(default=TextField(trim=" "))
+        name: str = TextField(trim=" ")
 
     t = T(name="    A    ")
     assert t.name == "A"
