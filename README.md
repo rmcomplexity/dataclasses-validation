@@ -59,10 +59,12 @@ makes you use a schema for validation.
 
 [Python descriptors](https://docs.python.org/3/howto/descriptor.html)
 give us the power to specify how data is looked up, stored and deleted.
-And this is seameless to the main class. This implementation also lets us specify
-which fields will be validated instead of having a one-or-nothing solution.
+And this is seameless to the main class. 
 [Python dataclasses](https://docs.python.org/3/library/dataclasses.html)
 are powerfull classes tailored to hold data.
+`dcv` implementation leverages descriptors and dataclasses
+to implement a less obtrusive validation and to be able to specify
+which fields will be validated instead of having a one-or-nothing solution.
 
 ## Benefits of `dcv`
 
