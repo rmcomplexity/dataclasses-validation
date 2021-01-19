@@ -85,6 +85,6 @@ There are plans to see how can `dcv` improve run-time type checking.
 
 ## Future Work
 
-Check the [project board](github.com/rmcomplexity/dataclasses-validation/projects/1) for in-flight and future work.
+Check the [project board](https://github.com/rmcomplexity/dataclasses-validation/projects/1) for in-flight and future work.
 
 If you have a specific question or request, please create a github issue.
