@@ -34,7 +34,7 @@ def test_str_max_length():
     t = T(name="names")
     assert t.name == "names"
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(ValueError):
         t = T(name="invalid string")
 
 
@@ -52,7 +52,7 @@ def test_str_min_length():
     t = T(name="name")
     assert t.name == "name"
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(ValueError):
         t = T(name="x")
 
 
@@ -70,10 +70,10 @@ def test_str_max_min_length():
     t = T(name="names")
     assert t.name == "names"
     
-    with pytest.raises(AttributeError):
+    with pytest.raises(ValueError):
         t = T(name="x")
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(ValueError):
         t = T(name="invalid string")
 
 def test_str_blank():
@@ -90,7 +90,7 @@ def test_str_blank():
     t = T(name="")
     assert t.name == ""
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(ValueError):
         t = T(name=None)
 
 def test_str_trim():
@@ -122,5 +122,5 @@ def test_str_regex():
     assert t.name == "arturo"
     t1 = T(name="Arturo")
     assert t1.name == "Arturo"
-    with pytest.raises(AttributeError):
+    with pytest.raises(ValueError):
         t2 = T(name="Pedro")

@@ -5,11 +5,11 @@ import re
 class TextField(Field):
     """Field validation for string values."""
     ERROR_MSGS = {
-        "max_length": "{attr_name} length cannot be more than {length}.",
-        "min_length": "{attr_name} length cannot be less than {length}.",
-        "optional": "{attr_name} must contain a value.",
-        "blank": "{attr_name} cannot be blank.",
-        "regex": "{attr_name} does not match regex: {regex} .",
+        "max_length": "'{attr_name}' length cannot be more than {length}.",
+        "min_length": "'{attr_name}' length cannot be less than {length}.",
+        "optional": "'{attr_name}' must contain a value.",
+        "blank": "'{attr_name}' cannot be blank.",
+        "regex": "'{attr_name}' does not match regex: {regex} .",
     }
     TYPE = str
 
@@ -62,7 +62,7 @@ class TextField(Field):
 
     def _validate_max_length(self, value: str, max_length: int) -> None:
         if len(value) > max_length:
-            raise AttributeError(
+            raise ValueError(
                 self.ERROR_MSGS["max_length"].format(
                     attr_name=self.public_attr_name,
                     length=self.max_length
@@ -71,7 +71,7 @@ class TextField(Field):
 
     def _validate_min_length(self, value: str, min_length: int) -> None:
         if len(value) < min_length:
-            raise AttributeError(
+            raise ValueError(
                 self.ERROR_MSGS["min_length"].format(
                     attr_name=self.public_attr_name,
                     length=self.min_length
@@ -79,11 +79,11 @@ class TextField(Field):
             )
     def _validate_blank(self, value: str) -> None:
         if not self.blank and not len(value):
-            raise AttributeError(self.ERROR_MSGS["blank"].format(attr_name=self.public_attr_name))
+            raise ValueError(self.ERROR_MSGS["blank"].format(attr_name=self.public_attr_name))
 
     def _validate_regex(self, value: str) -> None:
         if self.regex and not self.compiled.match(value):
-            raise AttributeError(
+            raise ValueError(
                 self.ERROR_MSGS["regex"].format(
                     attr_name=self.public_attr_name,
                     regex=self.regex

@@ -22,13 +22,16 @@ def test_field():
     @dataclass
     class T:
         name: str = MyField()
+        last_name: str = field(default=MyField(), init=False)
 
     @dataclass
     class OT:
         name: str = field(default=MyField())
 
     t = T(name="x")
+    t.last_name = "x"
     assert t.name == "x", "Custom field does not accept a valid string."
+    assert t.last_name == "x"
 
     ot = OT(name="x")
     assert ot.name == "x", "Custom field does not accept a valid string."
@@ -38,6 +41,9 @@ def test_field():
 
     with pytest.raises(AssertionError):
         ot = T(name="invalid string")
+
+    with pytest.raises(AssertionError):
+        t.last_name = "asdf"
 
 
 def test_field_optional_with_default():
