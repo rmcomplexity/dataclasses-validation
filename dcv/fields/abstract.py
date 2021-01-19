@@ -13,6 +13,13 @@ class Field(ABC):
     """Abstract Field class.
 
     Every field should inherit this class, even user defined fields.
+
+    By default every field can have a default and an optional flag.
+    
+    If `optional` is set to true and no default value is given,
+    `default` is set to `None`.
+
+    If `default` is set but `optional` is automatically set to `True`.
     """
 
     # Type to verify value set.
@@ -24,15 +31,6 @@ class Field(ABC):
         optional: bool=False,
         use_private_attr: bool=False
     ) -> None:
-        """Init base field.
-
-        By default every field can have a default and an optional flag.
-        
-        If `optional` is set to true and no default value is given,
-        `default` is set to `None`.
-
-        If `default` is set but `optional` is automatically set to `True`.
-        """
         self.optional = optional
         self.use_private_attr = use_private_attr
         if optional and default is MISSING:
@@ -64,8 +62,8 @@ class Field(ABC):
         """Set value to private attribute.
 
         Validation and transformation happen here.
-        A `validate` method will be called on the value.
-        After validation a `transform` method will be called on the validate value.
+        A `transform` method will be called on the value.
+        After `transform` a `validate` method will be called on the transformed value.
 
         Custom fields MUST implement `validate` but `transform` is optional.
 
@@ -74,9 +72,8 @@ class Field(ABC):
         value = self._compute_default_value(value)
 
         if not self._check_value_is_optional_none(value):
+            value = self.transform(value)
             self.validate(value)
-
-        value = self.transform(value)
 
         self._set_value(obj, value)
 
@@ -123,7 +120,7 @@ class Field(ABC):
 
     def _validate_optional(self, value:Any) -> None:
         if not self.optional and value is None:
-            raise AttributeError(f"{self.public_attr_name} cannot be 'None'.")
+            raise ValueError(f"{self.public_attr_name} cannot be 'None'.")
 
     def _check_value_is_optional_none(self, value:Any) -> bool:
         """Check if value of attribute is 'None' and CAN be none."""
@@ -135,12 +132,12 @@ class Field(ABC):
     def _check_value_has_been_set_or_optional(self, value: Any) -> None:
         """Check if value has been set and there is not a default value we can use.
 
-        An `AttributeError` will be raised if the value has not been set and
+        An `ValueError` will be raised if the value has not been set and
         we cannot use a `default` value.
         """
         if not self.optional and value is MISSING and self.default is MISSING:
             raise AttributeError(
-                f"Attribute f{self.public_attr_name} on object f{type(self).__name__} "
+                f"Attribute {self.public_attr_name} on object {type(self).__name__} "
                 "has not been set."
             )
 
