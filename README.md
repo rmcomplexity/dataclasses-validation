@@ -54,6 +54,24 @@ class User:
 >>> User(name = "", last_name="Balandrano", year_of_birth=1755)
 ... ValueError: 'name' cannot be blank.
 >>> User(name = "Josué", last_name="Balandrano", year_of_birth=1775)
+... # Insantiation without any issues
+>>> user = User(name="Josué", last_name="Balandrano", year_of_birth=1985)
+>>> logging.info(user)
+... INFO:root:User(name="Josué", last_name="Balandrano", opt_out="Yes")
+
+# We get a ValueError if we try to set an invalid value on a non-init attr.
+>>> user.opt_out = "Maybe"
+... ValueError: 'opt_out' does not match regex: (Yes|No) .
+
+# We automatically have serialization with dataclasses
+>>> asdict(user)
+... {'name': 'Josué', 'last_name': 'Balandrano', 'opt_out': 'Yes'}
+
+# We get a ValueError if an invalid value is used on init
+>>> User(name = "", last_name="Balandrano", year_of_birth=1755)
+... ValueError: 'name' cannot be blank.
+>>> User(name = "Josué", last_name="Balandrano", year_of_birth=1775)
+... ValueError: 'year_of_birth' value '1775' must be greater than 1800.
 ```
 
 ## Reasoning
