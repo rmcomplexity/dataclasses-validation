@@ -6,7 +6,8 @@ Dataclasses are powerful, but we still need to validate incoming data.
 Validation libraries make you either subclass a 3rd party class or use a schema class.
 **Now, you can easily validate fields in dataclasses by using field-specific validation**.
 
-## ![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) This is a work in progress. The only field implemented right now is [`TextField`](https://github.com/rmcomplexity/dataclasses-validation/blob/main/dcv/fields/text.py)
+## ![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) This is a work in progress.
+Please check the [project board](https://github.com/rmcomplexity/dataclasses-validation/projects/1) to see pendining tasks in case there isn't a proper release yet.
 
 ## Example:
 
@@ -14,7 +15,7 @@ Validation libraries make you either subclass a 3rd party class or use a schema 
 import logging
 from dataclasses import dataclass, field, asdict
 from typing import Optional
-from dcv.fields import TextField
+from dcv.fields import TextField, IntField
 
 
 logging.basicConfig(level=logging.INFO)
@@ -25,7 +26,11 @@ class User:
     # trailing/leading blank spaces will be removed
     name: str = TextField(min_length=1, trim=" ")
 
+    # A user cannot be born before 1800. Time travelers are not considered here :(.
+    year_of_birth: int = IntField(gt=1800)
+
     # 'last_name' can be None or an empty string.
+    # Optional fields have a default value of None.
     last_name: Optional[str] = TextField(min_length=1, trim=" ", optional=True, blank=True)
 
     # 'opt_out' has a default value of "Yes", uses a regex
@@ -33,7 +38,7 @@ class User:
     opt_out: str = field(default=TextField(default="Yes", regex="(Yes|No)"), init=False)
 
 # Insantiation without any issues
->>> user = User(name="Josué", last_name="Balandrano")
+>>> user = User(name="Josué", last_name="Balandrano", year_of_birth=1985)
 >>> logging.info(user)
 ... INFO:root:User(name="Josué", last_name="Balandrano", opt_out="Yes")
 
@@ -46,8 +51,9 @@ class User:
 ... {'name': 'Josué', 'last_name': 'Balandrano', 'opt_out': 'Yes'}
 
 # We get a ValueError if an invalid value is used on init
->>> User(name = "", last_name="Balandrano")
+>>> User(name = "", last_name="Balandrano", year_of_birth=1755)
 ... ValueError: 'name' cannot be blank.
+>>> User(name = "Josué", last_name="Balandrano", year_of_birth=1775)
 ```
 
 ## Reasoning

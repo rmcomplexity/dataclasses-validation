@@ -7,7 +7,6 @@ class TextField(Field):
     ERROR_MSGS = {
         "max_length": "'{attr_name}' length cannot be more than {length}.",
         "min_length": "'{attr_name}' length cannot be less than {length}.",
-        "optional": "'{attr_name}' must contain a value.",
         "blank": "'{attr_name}' cannot be blank.",
         "regex": "'{attr_name}' does not match regex: {regex} .",
     }
