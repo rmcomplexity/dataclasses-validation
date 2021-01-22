@@ -4,6 +4,8 @@ from dcv.fields import Field, MISSING
 
 class NumberField(Field):
     """Field validation for number values."""
+    __slots__ = ('gt', 'lt', 'ge', 'le')
+
     ERROR_MSGS = {
         "nan": "'{attr_name}' value '{value}' is not a number.",
         "gt": "'{attr_name}' value '{value}' must be greater than {limit}.",
@@ -11,7 +13,7 @@ class NumberField(Field):
         "ge": "'{attr_name}' value '{value}' must be greater than or equals to {limit}.",
         "le": "'{attr_name}' value '{value}' must be less than or equals to {limit}.",
     }
-    TYPE = (int, float, complex, Decimal)
+    TYPES = (int, float, complex, Decimal)
 
     def __init__(
         self,
@@ -108,21 +110,21 @@ class NumberField(Field):
 
 
 class IntField(NumberField):
-    TYPE = int
+    TYPES = (int, )
 
 
 class FloatField(NumberField):
-    TYPE = float
+    TYPES = (float, )
 
 
 class DecimalField(NumberField):
-    TYPE = Decimal
+    TYPES = (Decimal, )
 
 
 class ComplexField(NumberField):
     """Complex numbers cannot be compared."""
 
-    TYPE = complex
+    TYPES = (complex, )
 
     def __init__(
         self,

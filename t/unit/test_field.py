@@ -1,12 +1,13 @@
 from dataclasses import dataclass, fields, field
 import pytest
-from typing import Optional, cast
+from typing import Optional, cast, List
 from inspect import signature
 from dcv.fields import Field
 import types
 
 class MyField(Field):
     """Custom field."""
+    TYPES = (str, )
 
     def validate(self, value):
         assert value == "x" or value is None
@@ -127,3 +128,35 @@ def test_field_use_private_attr():
     assert ot.name == "x"
     assert ot.__dict__["_name"] == "x"
     assert ("name" in ot.__dict__) == False
+
+
+def test_field_with_wrong_typehint():
+    """Base field.
+
+    GIVEN a custom field with a defined tuple of supported types
+    WHEN a dataclass uses it in a field with the wrong typehint
+    THEN it should raise a TypeError
+    """
+    with pytest.raises(RuntimeError):
+        @dataclass
+        class T:
+            name: int = MyField()
+
+    with pytest.raises(RuntimeError):
+        @dataclass
+        class T:
+            name: Optional[int] = MyField()
+
+    with pytest.raises(RuntimeError):
+        @dataclass
+        class T:
+            name: List[str] = MyField()
+
+    class S(str):
+        pass
+
+    @dataclass
+    class T:
+        name: S = MyField()
+
+    assert isinstance(vars(T)['name'], MyField)
