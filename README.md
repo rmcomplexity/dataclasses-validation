@@ -120,20 +120,19 @@ checked against the objects in the `Field.TYPES` tuple.
 
 ## Available Fields
 
----------------------------------------------------------------------------------------
-| Name          | Types Supported                        | Implemented | Parent Field | 
----------------------------------------------------------------------------------------
-| `TextField`   | `str`, `bytes`                         | (/) Yes     | `Field`      |
-| `NumberField` | `int`, `float`, `complex`, `Decimal`   | (/) Yes     | `Field`      |
-| `IntField`    | `int`                                  | (/) Yes     | `NumberField`|
-| `FloatField`  | `float`                                | (/) Yes     | `NumberField`|
-| `ComplexField`| `complex`                              | (/) Yes     | `NumberField`|
-| `DecimalField`| `Decimal`                              | (/) Yes     | `NumberField`|
-| `EnumField`   | `Enum`                                 | (/) Yes     | `Field`      |
-| `BooleanField`| `bool`                                 | (x) No      |  ---         |
-| `ListField`   | `list`, `tuple`                        | (x) No      |  ---         |
-| `SetField`    | `set`                                  | (x) No      |  ---         |
-| `DictField`   | `dict`                                 | (x) No      |  ---         |
+| Name          | Types Supported                        | Implemented            | Parent Field | 
+|---------------|----------------------------------------|------------------------|--------------|
+| `TextField`   | `str`, `bytes`                         | :heavy_check_mark: Yes | `Field`      |
+| `NumberField` | `int`, `float`, `complex`, `Decimal`   | :heavy_check_mark: Yes | `Field`      |
+| `IntField`    | `int`                                  | :heavy_check_mark: Yes | `NumberField`|
+| `FloatField`  | `float`                                | :heavy_check_mark: Yes | `NumberField`|
+| `ComplexField`| `complex`                              | :heavy_check_mark: Yes | `NumberField`|
+| `DecimalField`| `Decimal`                              | :heavy_check_mark: Yes | `NumberField`|
+| `EnumField`   | `Enum`                                 | :heavy_check_mark: Yes | `Field`      |
+| `BooleanField`| `bool`                                 | :x: No                 |              |
+| `ListField`   | `list`, `tuple`                        | :x: No                 |              |
+| `SetField`    | `set`                                  | :x: No                 |              |
+| `DictField`   | `dict`                                 | :x: No                 |              |
 
 ## Future Work
 
