@@ -4,13 +4,15 @@ import re
 
 class TextField(Field):
     """Field validation for string values."""
+    __slots__ = ('max_length', 'min_length', 'blank', 'trim', 'regex', 'compiled')
+
     ERROR_MSGS = {
         "max_length": "'{attr_name}' length cannot be more than {length}.",
         "min_length": "'{attr_name}' length cannot be less than {length}.",
         "blank": "'{attr_name}' cannot be blank.",
         "regex": "'{attr_name}' does not match regex: {regex} .",
     }
-    TYPE = str
+    TYPES = (str, bytes)
 
     def __init__(
         self,

@@ -1,6 +1,6 @@
 import logging
-from abc import ABC, abstractmethod
-from typing import Any
+from abc import ABC, abstractmethod, ABCMeta
+from typing import Any, get_origin, get_args, get_type_hints
 
 LOG = logging.getLogger(__name__)
 
@@ -19,11 +19,16 @@ class Field(ABC):
     If `optional` is set to true and no default value is given,
     `default` is set to `None`.
 
-    If `default` is set but `optional` is automatically set to `True`.
+    If `default` is set, `optional` is automatically set to `True`.
     """
+    __slots__ = (
+        'optional', 'use_private_attr', 'default',
+        'public_attr_name', 'private_attr_name', '_stored_value',
+        '_annotation'
+    )
 
     # Type to verify value set.
-    TYPE: Any = None
+    TYPES: tuple = (None, )
 
     def __init__(
         self,
@@ -40,10 +45,15 @@ class Field(ABC):
             self.optional = True
 
         self.default = default
+        self._stored_value = None
+        self._annotation = None
 
     def __set_name__(self, owner: Any, name: str) -> None:
+        """Store necessary values."""
         self.public_attr_name = name
         self.private_attr_name = f"_{name}"
+        self._annotation = get_type_hints(owner).get(name, None)
+        self._get_annotation_valid_classes()
 
     def __get__(self, obj: Any, objtype: Any=None) -> Any:
         """Get value.
@@ -112,10 +122,11 @@ class Field(ABC):
             obj.__dict__[self.public_attr_name] = value
 
     def _check_type(self, value: Any) -> None:
-        if not isinstance(value, self.TYPE):
+        types = self._get_annotation_valid_classes()
+        if not isinstance(value, types):
             raise TypeError(
                 f"Value ({value}) set to field {self.public_attr_name} "
-                f"must be of type {self.TYPE} and not {type(value)}"
+                f"must be of type {types} and not {type(value)}."
             )
 
     def _validate_optional(self, value:Any) -> None:
@@ -150,3 +161,71 @@ class Field(ABC):
             value = None
 
         return value
+
+    def _check_typehint_match_field_types(self, valid_type: Any, hint_arguments: tuple) -> bool:
+        """Check if typehint arguments are valid field types.
+
+        A field `TYPES` can appear directly in a typehint argument tuple or
+        a typehint argument could be a subclass of a valid field typehint.
+        """
+        for argument in hint_arguments:
+            try:
+                if issubclass(argument, valid_type):
+                    return True
+            except TypeError:
+                continue
+        
+        if valid_type in hint_arguments:
+            return True
+
+        return False
+
+    def _get_annotation_valid_classes(self):
+        """Get origin class or type for field type hint.
+
+        If the type hint has arguments then we want to focus on those because
+        that is waht we can use to check for an obj type unless
+        the type hint origin is already a built-in type.
+
+        If `get_origin` returns `None` it means we could have a built-in type already.
+        """
+        origin = get_origin(self._annotation)
+        hint_arguments = get_args(self._annotation)
+        print("origin: " + str(origin))
+        print("hint_arguments: " + str(hint_arguments))
+
+        if (origin is None and
+            (self._annotation in self.TYPES or
+             any([issubclass(self._annotation, valid_type) for valid_type in self.TYPES]))):
+            return self._annotation
+
+        elif origin is not None and origin in self.TYPES:
+            return origin
+
+        elif type(origin) is not type and any(
+            [
+                self._check_typehint_match_field_types(valid_type, hint_arguments)
+                for valid_type in self.TYPES
+            ]
+        ):
+            return hint_arguments
+
+        raise TypeError(
+            f"Attribute '{self.public_attr_name}' has an invalid type hint of '{self._annotation}' ."
+            f"Type hint should be '{self.TYPES}' or a subclass."
+        )
+
+
+    def __str__(self):
+        ret = f"{self.__class__.__name__}("
+        attrs = []
+        for attribute_name in self.__slots__:
+            val = getattr(self, attribute_name, MISSING)
+            if val is MISSING:
+                continue
+            attrs.append(f"{attribute_name}={val}")
+
+        return f"{self.__class__.__name__}({', '.join(attrs)})"
+
+    def __repr__(self):
+        return self.__str__()
