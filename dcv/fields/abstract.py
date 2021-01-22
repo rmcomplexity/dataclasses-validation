@@ -170,7 +170,8 @@ class Field(ABC):
         """
         for argument in hint_arguments:
             try:
-                if issubclass(argument, valid_type):
+                type_cls = self._get_annotation_valid_classes(argument)
+                if issubclass(type_cls, valid_type):
                     return True
             except TypeError:
                 continue
@@ -180,7 +181,7 @@ class Field(ABC):
 
         return False
 
-    def _get_annotation_valid_classes(self):
+    def _get_annotation_valid_classes(self, type_hint: Any=MISSING):
         """Get origin class or type for field type hint.
 
         If the type hint has arguments then we want to focus on those because
@@ -189,15 +190,16 @@ class Field(ABC):
 
         If `get_origin` returns `None` it means we could have a built-in type already.
         """
-        origin = get_origin(self._annotation)
-        hint_arguments = get_args(self._annotation)
-        print("origin: " + str(origin))
-        print("hint_arguments: " + str(hint_arguments))
+        if type_hint is MISSING:
+            type_hint = self._annotation
+
+        origin = get_origin(type_hint)
+        hint_arguments = get_args(type_hint)
 
         if (origin is None and
-            (self._annotation in self.TYPES or
-             any([issubclass(self._annotation, valid_type) for valid_type in self.TYPES]))):
-            return self._annotation
+            (type_hint in self.TYPES or
+             any([issubclass(type_hint, valid_type) for valid_type in self.TYPES]))):
+            return type_hint
 
         elif origin is not None and origin in self.TYPES:
             return origin
