@@ -134,7 +134,6 @@ checked against the objects in the `Field.TYPES` tuple.
 | `ListField`   | `list`, `tuple`                        | (x) No      |  ---         |
 | `SetField`    | `set`                                  | (x) No      |  ---         |
 | `DictField`   | `dict`                                 | (x) No      |  ---         |
----------------------------------------------------------------------------------------
 
 ## Future Work
 
