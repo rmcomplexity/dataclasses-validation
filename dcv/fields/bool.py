@@ -1,17 +1,16 @@
 from dcv.fields import Field, MISSING
 from typing import Optional, Union, cast
-from enum import Enum
 
 
-class EnumField(Field):
-    """Field validation for enum values."""
+class BoolField(Field):
+    """Field validation for bool values."""
 
     ERROR_MSGS = {}
-    TYPES = (Enum, )
+    TYPES = (bool, )
 
     def __init__(
         self,
-        default: Optional[Enum] = cast(Enum, MISSING),
+        default: Optional[bool] = cast(bool, MISSING),
         optional: bool=False,
         use_private_attr: bool=False
     ):
@@ -21,7 +20,7 @@ class EnumField(Field):
             use_private_attr=use_private_attr
         )
 
-    def validate(self, value: Enum) -> None:
+    def validate(self, value: bool) -> None:
         self._validate_optional(value)
 
         self._check_type(value)
