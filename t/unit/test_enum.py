@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional, Any
 import pytest
-from dcv.fields.enum import EnumField
+from dcv.fields import EnumField
 
 class Size(Enum):
     XS = 'x-small'
