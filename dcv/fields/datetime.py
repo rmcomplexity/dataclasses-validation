@@ -43,7 +43,7 @@ class DateTimeBaseField(Field):
             self._validate_gt(value, self.gt)
 
         if self.lt is not None:
-            self._validate_ge(value, self.lt)
+            self._validate_lt(value, self.lt)
 
         if self.ge is not None:
             self._validate_ge(value, self.ge)

@@ -1,5 +1,5 @@
 from dcv.fields import Field, MISSING
-from typing import Optional, cast
+from typing import Optional, Union, cast
 import re
 
 class TextField(Field):
@@ -22,8 +22,8 @@ class TextField(Field):
         max_length: Optional[int]=None,
         min_length: Optional[int]=None, *,
         blank: bool=False,
-        regex: str=None,
-        trim: str=None
+        regex: Optional[str]=None,
+        trim: Union[str, bool]=False
     ):
         super().__init__(
             default=default,
@@ -56,7 +56,9 @@ class TextField(Field):
             self._validate_regex(value)
 
     def transform(self, value: str) -> str:
-        if self.trim is not None:
+        if self.trim is True:
+            return value.strip()
+        elif isinstance(self.trim, str):
             return value.strip(self.trim)
 
         return value

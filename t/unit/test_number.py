@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import Union
 import pytest
-from dcv.fields.number import NumberField, ComplexField
+from dcv.fields import NumberField, ComplexField
 
 def test_numbers():
     """Test all number types.
