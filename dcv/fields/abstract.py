@@ -20,6 +20,8 @@ class Field(ABC):
     `default` is set to `None`.
 
     If `default` is set, `optional` is automatically set to `True`.
+
+    `TYPES` should always be a tuple of valid object types and not generics.
     """
     __slots__ = (
         'optional', 'use_private_attr', 'default',
@@ -196,14 +198,19 @@ class Field(ABC):
         origin = get_origin(type_hint)
         hint_arguments = get_args(type_hint)
 
+        # Could be a valid type, check if it is part of the valid types for this field
+        # or a sublcass of a valid type.
         if (origin is None and
             (type_hint in self.TYPES or
              any([issubclass(type_hint, valid_type) for valid_type in self.TYPES]))):
             return type_hint
 
+        # type_hint might be a generic that resolves to a valid type, e.g. List => list
         elif origin is not None and origin in self.TYPES:
             return origin
 
+        # If type_hint is not a valid type then recurse over the arguments.
+        # The valid types would be the arguments.
         elif type(origin) is not type and any(
             [
                 self._check_typehint_match_field_types(valid_type, hint_arguments)

@@ -32,7 +32,7 @@ logging.basicConfig(level=logging.INFO)
 @dataclass
 class User:
     # trailing/leading blank spaces will be removed
-    name: str = TextField(min_length=1, trim=" ")
+    name: str = TextField(min_length=1, trim=True)
 
     # 'last_name' can be None or an empty string.
     # Optional fields have a default value of None.
@@ -120,19 +120,61 @@ checked against the objects in the `Field.TYPES` tuple.
 
 ## Available Fields
 
-| Name          | Types Supported                        | Implemented            | Parent Field | 
-|---------------|----------------------------------------|------------------------|--------------|
-| `TextField`   | `str`, `bytes`                         | :heavy_check_mark: Yes | `Field`      |
-| `NumberField` | `int`, `float`, `complex`, `Decimal`   | :heavy_check_mark: Yes | `Field`      |
-| `IntField`    | `int`                                  | :heavy_check_mark: Yes | `NumberField`|
-| `FloatField`  | `float`                                | :heavy_check_mark: Yes | `NumberField`|
-| `ComplexField`| `complex`                              | :heavy_check_mark: Yes | `NumberField`|
-| `DecimalField`| `Decimal`                              | :heavy_check_mark: Yes | `NumberField`|
-| `EnumField`   | `Enum`                                 | :heavy_check_mark: Yes | `Field`      |
-| `BooleanField`| `bool`                                 | :x: No                 |              |
-| `ListField`   | `list`, `tuple`                        | :x: No                 |              |
-| `SetField`    | `set`                                  | :x: No                 |              |
-| `DictField`   | `dict`                                 | :x: No                 |              |
+| Name               | Types Supported                        | Implemented            | Parent Field       | 
+|--------------------|----------------------------------------|------------------------|--------------------|
+| `TextField`        | `str`, `bytes`                         | :heavy_check_mark: Yes | `Field`            |
+| `NumberField`      | `int`, `float`, `complex`, `Decimal`   | :heavy_check_mark: Yes | `Field`            |
+| `IntField`         | `int`                                  | :heavy_check_mark: Yes | `NumberField`      |
+| `FloatField`       | `float`                                | :heavy_check_mark: Yes | `NumberField`      |
+| `ComplexField`     | `complex`                              | :heavy_check_mark: Yes | `NumberField`      |
+| `DecimalField`     | `Decimal`                              | :heavy_check_mark: Yes | `NumberField`      |
+| `EnumField`        | `Enum`                                 | :heavy_check_mark: Yes | `Field`            |
+| `BooleanField`     | `bool`                                 | :heavy_check_mark: Yes | `Field`            |
+| `DateTimeBaseField`| `date`, `time`, `datetime`, `timedelta`| :heavy_check_mark: Yes | `Field`            |
+| `DateField`        | `date`                                 | :heavy_check_mark: Yes | `DateTimeBaseField`|
+| `TimeField`        | `time`                                 | :heavy_check_mark: Yes | `DateTimeBaseField`|
+| `DateTimeField`    | `datetime`                             | :heavy_check_mark: Yes | `DateTimeBaseField`|
+| `TimeDeltaField`   | `timedelta`                            | :heavy_check_mark: Yes | `DateTimeBaseField`|
+| `ContianerField`   | `collections.abc.Container`            | :x: No                 |                    |
+| `SequenceField`    | `collections.abc.Sequence`             | :x: No                 |                    |
+| `SetField`         | `collections.abc.Set`                  | :x: No                 |                    |
+| `MappingField`     | `collections.abc.Mapping`              | :x: No                 |                    |
+
+## Custom Fields
+
+#### Subclassing existing field
+
+Custom fields can be created by subclassing any of the existing ones. This is recommended when you want to
+have the same functionality but check for another specific value type.
+
+For instance, you might want to validate a date field but you want to use another library and not python's
+`datetime`:
+
+```python
+
+from dcv.fields import DateTimeField
+from arrow import arrow
+
+class ArrowDTField(DateTimeField):
+    TYPES = (arrow.Arrow,)
+```
+
+#### Subclassing abstract `Field`
+
+You can also subclass the `Field` abstract class which already implements everything a field validation descriptor
+needs. The only required method to implement is `validate` which accepts the value being set:
+
+```python
+from dcv.fields.abstract import Field
+from app.models import User
+
+class UserField(Field):
+    TYPES = (User,)
+
+    def validate(self, value: User) -> None:
+        validate_user(value)
+
+```
 
 ## Future Work
 

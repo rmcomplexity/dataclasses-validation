@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 import pytest
-from dcv.fields.text import TextField
+from dcv.fields import TextField
 
 def test_str():
     """Str and text fields.
