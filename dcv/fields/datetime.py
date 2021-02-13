@@ -1,29 +1,28 @@
-from typing import Optional, Union, cast
-from decimal import Decimal
 from dcv.fields import Field, MISSING
+from typing import Optional, Union, cast
+from datetime import datetime, timedelta, date, time
 
-class NumberField(Field):
-    """Field validation for number values."""
+class DateTimeBaseField(Field):
+    """Datetime field validation."""
     __slots__ = ('gt', 'lt', 'ge', 'le')
 
     ERROR_MSGS = {
-        "nan": "'{attr_name}' value '{value}' is not a number.",
         "gt": "'{attr_name}' value '{value}' must be greater than {limit}.",
         "lt": "'{attr_name}' value '{value}' must be less than {limit}.",
         "ge": "'{attr_name}' value '{value}' must be greater than or equals to {limit}.",
         "le": "'{attr_name}' value '{value}' must be less than or equals to {limit}.",
     }
-    TYPES = (int, float, complex, Decimal)
+    TYPES = (datetime, timedelta, date, time)
 
     def __init__(
         self,
-        default: Union[int, float, complex, Decimal, None] = cast(int, MISSING),
+        default: Optional[datetime] = cast(datetime, MISSING),
         optional: bool=False,
         use_private_attr: bool=False,
-        gt: Union[int, float, complex, Decimal, None]=None,
-        lt: Union[int, float, complex, Decimal, None]=None,
-        ge: Union[int, float, complex, Decimal, None]=None,
-        le: Union[int, float, complex, Decimal, None]=None
+        gt: Union[datetime, timedelta, date, time, None]=None,
+        lt: Union[datetime, timedelta, date, time, None]=None,
+        ge: Union[datetime, timedelta, date, time, None]=None,
+        le: Union[datetime, timedelta, date, time, None]=None
     ):
         super().__init__(
             default=default,
@@ -35,7 +34,7 @@ class NumberField(Field):
         self.ge = ge
         self.le = le
 
-    def validate(self, value: Union[int, float, complex, Decimal, None]) -> None:
+    def validate(self, value: Union[datetime, timedelta, date, time, None]) -> None:
         self._validate_optional(value)
 
         self._check_type(value)
@@ -44,7 +43,7 @@ class NumberField(Field):
             self._validate_gt(value, self.gt)
 
         if self.lt is not None:
-            self._validate_lt(value, self.lt)
+            self._validate_ge(value, self.lt)
 
         if self.ge is not None:
             self._validate_ge(value, self.ge)
@@ -54,8 +53,8 @@ class NumberField(Field):
 
     def _validate_gt(
         self,
-        value: Union[int, float, complex, Decimal],
-        limit: Union[int, float, complex, Decimal]
+        value: Union[datetime, timedelta, date, time],
+        limit: Union[datetime, timedelta, date, time]
     ):
         if not value > limit:
             raise ValueError(
@@ -68,8 +67,8 @@ class NumberField(Field):
 
     def _validate_lt(
         self,
-        value: Union[int, float, complex, Decimal],
-        limit: Union[int, float, complex, Decimal]
+        value: Union[datetime, timedelta, date, time],
+        limit: Union[datetime, timedelta, date, time]
     ):
         if not value < limit:
             raise ValueError(
@@ -82,8 +81,8 @@ class NumberField(Field):
 
     def _validate_ge(
         self,
-        value: Union[int, float, complex, Decimal],
-        limit: Union[int, float, complex, Decimal]
+        value: Union[datetime, timedelta, date, time],
+        limit: Union[datetime, timedelta, date, time]
     ):
         if not value >= limit:
             raise ValueError(
@@ -96,8 +95,8 @@ class NumberField(Field):
 
     def _validate_le(
         self,
-        value: Union[int, float, complex, Decimal],
-        limit: Union[int, float, complex, Decimal]
+        value: Union[datetime, timedelta, date, time],
+        limit: Union[datetime, timedelta, date, time]
     ):
         if not value <= limit:
             raise ValueError(
@@ -108,32 +107,23 @@ class NumberField(Field):
                 )
             )
 
-
-class IntField(NumberField):
-    TYPES = (int, )
-
-
-class FloatField(NumberField):
-    TYPES = (float, )
+    def _check_limits_type(self):
+        """Verify the values given as limits match the field type."""
+        for limit_attr_name in ["gt", "lt", "ge", "le"]:
+            self._check_type(getattr(self, limit_attr_name))
 
 
-class DecimalField(NumberField):
-    TYPES = (Decimal, )
+class DateTimeField(DateTimeBaseField):
+    TYPES = (datetime,)
 
 
-class ComplexField(NumberField):
-    """Complex numbers cannot be compared."""
+class TimeDeltaField(DateTimeBaseField):
+    TYPES = (timedelta,)
 
-    TYPES = (complex, )
 
-    def __init__(
-        self,
-        default: Optional[complex] = cast(complex, MISSING),
-        optional: bool=False,
-        use_private_attr: bool=False
-    ):
-        super().__init__(
-            default=default,
-            optional=optional,
-            use_private_attr=use_private_attr
-        )
+class DateField(DateTimeBaseField):
+    TYPES = (date,)
+
+
+class TimeField(DateTimeBaseField):
+    TYPES = (time,)
