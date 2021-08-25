@@ -71,7 +71,8 @@ class User:
 - Validation is implemented in descriptors and not in the class.
 - Validation happens when a value is assigned to an attribute, could be on `__init__` or afterwards.
 - Easily nest objects simply by using more dataclasses.
-- No need to sublcass anything.
+- No need to subclass anything.
+- Constructor autocompletion & static type checking.
 - No need to create another class to define the schema.
 - Basic [runtime type hint checking](#runtime-type-hint-checking).
 
@@ -116,7 +117,7 @@ checked against the objects in the `Field.TYPES` tuple.
 - `field_name: str` - Will check if any object in `Field.TYPES` is `str` or a subclass of `str`.
 - `field_name: Optional[str]` - `Optional` will be discarded and `str` will be used to check values.
 - `field_name: List[str]` - `list` will be used to check values.
-- `field_name: Optional[List[int]] - `list` will be used to check values.
+- `field_name: Optional[List[int]]` - `list` will be used to check values.
 
 ## Available Fields
 
